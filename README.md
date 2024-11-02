@@ -8,7 +8,8 @@
 It enables easy integration of multimedia content into raylib applications, providing direct access to video textures and audio streams, with support for seeking and looping.
 
 <p align="center">
-  <img src="res/rmedia_icon.svg" alt="raylib-media icon" width="256" height="256">
+  <img src="res/rmedia_icon.svg" alt="raylib-media icon" width="270" height="270">
+  <img src="res/raylib_example_01.gif" alt="raylib-example">
 </p>
 
 ## Core Features
