@@ -1,4 +1,4 @@
-![Version](https://img.shields.io/badge/raylib-v5.0-informational) <!-- ![License](https://img.shields.io/github/license/cloudofoz/raylib-media) -->
+![Version](https://img.shields.io/badge/raylib--media-v0.1beta-informational) ![Version](https://img.shields.io/badge/raylib-v5.0-informational) ![License](https://img.shields.io/github/license/cloudofoz/raylib-media)
 
 > **Note**: This library is in **beta**. Your feedback and support in enhancing its quality are greatly appreciated!
 
@@ -20,7 +20,18 @@ It enables easy integration of multimedia content into raylib applications, prov
 - Synchronized audio and video playback
 - Supports media seeking and looping
 - Compatible with formats supported by the codecs in the linked FFmpeg build
+
+<br>
   
+## Credits
+
+Special thanks to the following resources:
+
+- [FFmpeg Libav Tutorial](https://github.com/leandromoreira/ffmpeg-libav-tutorial) - This resource was invaluable in helping me start to dive into FFmpeg and Libav.
+- [FFmpeg Builds by BtbN](https://github.com/BtbN/FFmpeg-Builds) - For providing compiled dependencies that are easy and straightforward to use, perfect for immediately starting to use **raylib-media**.
+
+
 <br>
 
 ### *Documentation, instructions, and examples will follow (WIP)*
+
