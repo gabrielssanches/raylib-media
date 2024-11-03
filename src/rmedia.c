@@ -867,7 +867,11 @@ MediaStream LoadMediaEx(const char* fileName, int flags)
 	{
 		ret.videoTexture = LoadTextureFromImage(ret.ctx->videoOutputImage);
 
-		if (!IsTextureReady(ret.videoTexture))
+		if (IsTextureReady(ret.videoTexture))
+		{
+			SetTextureFilter(ret.videoTexture, TEXTURE_FILTER_BILINEAR);
+		}
+		else
 		{
 			isLoaded = false;
 		}
