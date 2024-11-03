@@ -272,6 +272,10 @@ int AVProcessAudioFrame(const MediaStream* media);
 // Processes a specific video frame to provide usable data for [MediaStream].videoTexture.
 int AVProcessVideoFrame(const MediaStream* media);
 
+// Helper for seeking to the first video keyframe in the media. Called by AVSeek after codec are flushed.
+// It's used to avoid visual codec artifacts while seeking in the media.
+bool AVSeekVideoKeyframe(const MediaStream* media);
+
 // Helper for seeking to a specific position in the media (targetTimestamp in libav time units).
 bool AVSeek(MediaStream* media, int64_t targetTimestamp);
 
@@ -1665,6 +1669,51 @@ bool AVSeekRelative(MediaStream* media, double factor)
 	return AVSeek(media, targetTimestamp);
 }
 
+bool AVSeekVideoKeyframe(const MediaStream* media)
+{
+	assert(media);
+
+	if (!HasStream(media->ctx, STREAM_VIDEO))
+		return true;
+
+	MediaContext* ctx = media->ctx;
+	StreamDataContext* streamCtx = &ctx->streams[STREAM_VIDEO];
+
+	while (true)
+	{
+		AVPacket* vPacket = NULL;
+		int ret = AVPeekPacket(ctx, STREAM_VIDEO, &vPacket);
+
+		if (ret == MEDIA_EOF)
+		{
+			NotifyEndOfStream(media);
+			break;
+		}
+
+		if (ret != MEDIA_RET_SUCCEED)
+		{
+			TraceLog(LOG_WARNING, "MEDIA: Failed grabbing packet from video stream. (Error code: %i)", ret);
+			return false;
+		}
+
+		// A video keyframe has just been found, we are done.
+		if (vPacket->flags & AV_PKT_FLAG_KEY)
+		{
+			// Set the media time to match this keyframe
+			ctx->timePos = (double)(vPacket->pts - streamCtx->startPts) *
+				av_q2d(ctx->formatContext->streams[streamCtx->streamIdx]->time_base);
+			break;
+		}
+
+		// Discard non-keyframe packets (Same of DequeuePacket, but it avoids redundant reference moving)
+		AdvanceReadPos(&streamCtx->pendingPackets.state);
+		av_packet_unref(vPacket);
+	}
+
+	return true;
+}
+
+
 bool AVSeek(MediaStream* media, int64_t targetTimestamp)
 {
 	MediaContext* ctx = media->ctx;
@@ -1692,6 +1741,12 @@ bool AVSeek(MediaStream* media, int64_t targetTimestamp)
 
 			ClearQueue(&ctx->streams[i].pendingPackets);
 		}		
+	}
+
+	// If the media has a video stream then seek the first video keyframe to avoid image output artifacts
+	if(!AVSeekVideoKeyframe(media))
+	{
+		return false;
 	}
 
 	if (IsAudioStreamReady(media->audioStream))
