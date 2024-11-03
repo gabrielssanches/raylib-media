@@ -969,7 +969,6 @@ int SetMediaState(MediaStream media, int newState)
 		if (curState == MEDIA_STATE_STOPPED) 
 		{
 			UpdateState(&media, MEDIA_STATE_PLAYING);
-			UpdateMediaEx(&media, 0.0); // grab the first packets with deltaTime = 0.0
 			if(IsAudioStreamReady(media.audioStream))
 			{
 				PlayAudioStream(media.audioStream);
