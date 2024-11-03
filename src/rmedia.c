@@ -460,6 +460,8 @@ bool SetMediaPosition(MediaStream media, double timeSec)
 		return false;
 	}
 
+	timeSec = max(0, timeSec);
+
 	return AVSeek(&media, (int64_t)(timeSec * AV_TIME_BASE));
 }
 
