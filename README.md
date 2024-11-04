@@ -21,6 +21,26 @@ It enables easy integration of multimedia content into raylib applications, prov
 - Supports media seeking and looping
 - Compatible with formats supported by the codecs in the linked FFmpeg build
 
+## Minimal Usage
+
+These 3-4 lines of code show the minimal code needed to play a video with `raylib-media`:
+
+```c
+#include <raymedia.h>
+
+MediaStream media = LoadMedia("path/to/your_file.mp4"); // Load the media
+
+while (...) { // Begin your main loop
+    ...
+    UpdateMedia(&media); // Update the media stream according to frame time
+    ...
+    DrawTexture(media.videoTexture, 0, 0, WHITE); // Draw the video frame
+    ...
+}
+
+UnloadMedia(&media); // Unload media when done
+```
+
 <br>
   
 ## Credits
