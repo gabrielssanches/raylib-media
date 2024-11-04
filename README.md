@@ -41,7 +41,56 @@ while (...) { // Begin your main loop
 UnloadMedia(&media); // Unload media when done
 ```
 
-<br>
+---
+
+## Dependencies
+
+`raylib-media` depends on the following files and libraries (a build system is not yet available):
+
+1. **`src/raymedia.h`** and **`src/rmedia.c`**
+
+   - You can include them directly in your project or compile **`rmedia.c`** and use the compiled library.
+
+2. **[raylib](https://www.raylib.com/)**
+
+   - Since **raylib-media** is an extension of **raylib**, it's assumed you are already using it and know how to compile it. This can easily be done using CMake or one of the available project files.
+
+3. The following subset of **libav\*** libraries from **[FFmpeg](https://www.ffmpeg.org/)**:
+
+   - **`libavcodec`**
+   - **`libavformat`**
+   - **`libavutil`**
+   - **`libswresample`**
+   - **`libswscale`**
+
+   You may want to start by using precompiled libraries and later compile your own version, stripping out the codecs you don't use to reduce the library size and tailor it to your needs:
+
+   - **Linux** [*Need testing*]: Install via your package manager (e.g., `sudo apt-get install libavcodec-dev libavformat-dev libavutil-dev libswresample-dev libswscale-dev`).
+     
+   - **macOS** [*Need testing*]:
+     Use Homebrew (`brew install ffmpeg`).
+     
+   - **Windows**:
+     Download compiled libraries from sources like [FFmpeg Builds by BtbN](https://github.com/BtbN/FFmpeg-Builds): [`ffmpeg-n7.1-latest-win64-lgpl-shared-7.1.zip`](https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n7.1-latest-win64-lgpl-shared-7.1.zip)
+
+
+
+---
+
+## About FFmpeg
+
+FFmpeg is available in two versions:
+
+- The complete version under a **GPL** license.
+- A more permissive version without certain proprietary codecs under an **LGPL** license.
+
+**What does this mean for you?**
+
+- **LGPL Version**: If you prefer more flexibility in licensing your own code, choose the LGPL version. By linking LGPL **libav\*** libraries dynamically, you're free to license your code as you wish without additional obligations.
+- **GPL Version**: Using the GPL version requires that your code also be released under the GPL license, which mandates that the source code be made available under the same terms.
+
+
+---
   
 ## Credits
 
