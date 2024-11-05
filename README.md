@@ -40,6 +40,24 @@ while (...) { // Begin your main loop
 
 UnloadMedia(&media); // Unload media when done
 ```
+---
+## Code Examples
+
+**[`1) example_01_basics.c`](https://github.com/cloudofoz/raylib-media/blob/main/examples/media/example_01_basics.c)**  
+> *Description:* Demonstrates how to play a video on the screen and loop it continuously.
+   <p align="center">
+    <img src="res/rmedia_example_01.jpg" alt="rmedia_example_01.jpg" width="380">
+   </p>
+   
+**[`2) example_02_media_player.c`](https://github.com/cloudofoz/raylib-media/blob/main/examples/media/example_02_media_player.c)**  
+> *Description:* A simple media player illustrating how to control playback speed, seek, pause, loop, adjust audio volume, and apply real-time shader effects to the video.
+   <p align="center">
+    <img src="res/rmedia_example_02.jpg" alt="rmedia_example_02.jpg" width="380" height="222">
+    <img src="res/rmedia_example_02.gif" alt="rmedia_example_02.gif" width="380" height="222">
+   </p>
+
+**`3) example_03`** (WIP)  
+> *Description:* A basic 3D scene with multiple media streams playing simultaneously.
 
 ---
 
