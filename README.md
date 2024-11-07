@@ -56,8 +56,12 @@ UnloadMedia(&media); // Unload media when done
     <img src="res/rmedia_example_02.gif" alt="rmedia_example_02.gif" width="380" height="222">
    </p>
 
-**`3) example_03`** (WIP)  
-> *Description:* A basic 3D scene with multiple media streams playing simultaneously.
+**[`3) example_03_multi_stream.c`](https://github.com/cloudofoz/raylib-media/blob/main/examples/media/example_03_multi_stream.c)**
+> *Description:* A 3D demo scene demonstrating multiple video streams with synchronized audio that dynamically adjusts based on cursor proximity.
+   <p align="center">
+    <img src="res/rmedia_example_03.jpg" alt="rmedia_example_03.jpg" width="380" height="222">
+    <img src="res/rmedia_example_03.gif" alt="rmedia_example_03.gif" width="380" height="222">
+   </p>
 
 ---
 
