@@ -39,7 +39,7 @@ Thumbs.db
 
 # Ignore compiled object files
 *.o
-*.obj
+#*.obj
 *.dll
 *.lib
 *.so
