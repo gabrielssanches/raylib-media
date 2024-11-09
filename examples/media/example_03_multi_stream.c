@@ -113,6 +113,7 @@ void EndSceneCamera(void);
 
 bool LoadScene(void);
 void UnloadScene(void);
+Color ColorBlend(Color color1, Color color2, float factor);
 void RenderScene(void);
 bool LoadEnvironment(void);
 void UnloadEnvironment(void);
@@ -355,6 +356,21 @@ void UnloadEnvironment(void)
 // Render Functions
 //--------------------------------------------------------------------------------------------------
 
+Color ColorBlend(Color color1, Color color2, float factor)
+{
+    Color color = { 0 };
+
+    if (factor < 0.0f) factor = 0.0f;
+    else if (factor > 1.0f) factor = 1.0f;
+
+    color.r = (unsigned char)((1.0f - factor)*color1.r + factor*color2.r);
+    color.g = (unsigned char)((1.0f - factor)*color1.g + factor*color2.g);
+    color.b = (unsigned char)((1.0f - factor)*color1.b + factor*color2.b);
+    color.a = (unsigned char)((1.0f - factor)*color1.a + factor*color2.a);
+
+    return color;
+}
+
 // Function to project a 3D world space position to 2D screen space
 // Same as GetWorldToScreen()
 Vector2 ProjectToScreen(Vector3 worldPos, const Matrix* mvp, float screenWidth, float screenHeight)
@@ -512,7 +528,7 @@ void RenderScene(void)
 		DrawCircleLinesV(cvd.mousePos, cvd.maxDist, WHITE);
 		DrawCircleV(cvr.tvScreenPos, 23.0f, Fade(BLACK, fminf(overlayAlpha, 0.55f)));
 		DrawText(TextFormat("%0.2f", cvr.volumeFactor), (int)cvr.tvScreenPos.x - 18, (int)cvr.tvScreenPos.y - 8, 20,
-		         ColorLerp((Color){255, 0, 0, 0}, GREEN, overlayAlpha));
+		         ColorBlend((Color){255, 0, 0, 0}, GREEN, overlayAlpha));
 	}
 
 	// Draw Instructions overlay

@@ -41,6 +41,13 @@
 
 #define CLAMP(x, low, high) ((x) < (low) ? (low) : (x) > (high) ? (high) : (x))
 
+#ifndef MIN
+#define MIN(a,b) (((a) < (b)) ? (a) : (b))
+#endif
+
+#ifndef MAX
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+#endif
 
 //---------------------------------------------------------------------------------------------------
 // Enumerators Definition
@@ -321,19 +328,19 @@ int SetMediaFlag(int flag, int value)
 	switch (flag)
 	{
 	case MEDIA_VIDEO_QUEUE:
-		MEDIA.videoQueueSize = max(value, 1);
+		MEDIA.videoQueueSize = MAX(value, 1);
 		break;
 
 	case MEDIA_AUDIO_QUEUE:
-		MEDIA.audioQueueSize = max(value, 1);
+		MEDIA.audioQueueSize = MAX(value, 1);
 		break;
 
 	case MEDIA_AUDIO_DECODED_BUFFER:
-		MEDIA.audioDecodedBufferSize = max(value, 1024);
+		MEDIA.audioDecodedBufferSize = MAX(value, 1024);
 		break;
 
 	case MEDIA_AUDIO_STREAM_BUFFER:
-		MEDIA.audioStreamBufferSize = max(value, 1024);
+		MEDIA.audioStreamBufferSize = MAX(value, 1024);
 		break;
 
 	case MEDIA_AUDIO_FORMAT:
@@ -349,19 +356,19 @@ int SetMediaFlag(int flag, int value)
 		break;
 
 	case MEDIA_AUDIO_CHANNELS:
-		MEDIA.audioOutputChannels = max(1, value);
+		MEDIA.audioOutputChannels = MAX(1, value);
 		break;
 
 	case MEDIA_VIDEO_MAX_DELAY:
-		MEDIA.maxAllowedDelay[STREAM_VIDEO] = max(0, value) / 1000.0;
+		MEDIA.maxAllowedDelay[STREAM_VIDEO] = MAX(0, value) / 1000.0;
 		break;
 
 	case MEDIA_AUDIO_MAX_DELAY:
-		MEDIA.maxAllowedDelay[STREAM_AUDIO] = max(0, value) / 1000.0;
+		MEDIA.maxAllowedDelay[STREAM_AUDIO] = MAX(0, value) / 1000.0;
 		break;
 
 	case MEDIA_AUDIO_UPDATE:
-		MEDIA.audioMaxUpdateSize = max(value, 1024);
+		MEDIA.audioMaxUpdateSize = MAX(value, 1024);
 		break;	
 
 	default:
@@ -464,7 +471,7 @@ bool SetMediaPosition(MediaStream media, double timeSec)
 		return false;
 	}
 
-	timeSec = max(0, timeSec);
+	timeSec = MAX(0, timeSec);
 
 	return AVSeek(&media, (int64_t)(timeSec * AV_TIME_BASE));
 }
@@ -1123,7 +1130,7 @@ bool UpdateMediaEx(MediaStream* media, double deltaTime)
 	{
 		const int readableSegmentBytes = GetBufferReadableSegmentSize(&ctx->audioOutputBuffer.state);
 
-		const int updateSize = min(readableSegmentBytes, ctx->audioMaxUpdateSize);
+		const int updateSize = MIN(readableSegmentBytes, ctx->audioMaxUpdateSize);
 
 		const int bytesPerSample = (int)((media->audioStream.sampleSize / 8) * media->audioStream.channels);
 
@@ -1289,7 +1296,7 @@ int WriteBuffer(Buffer* buffer, const uint8_t* srcData, int srcSize)
 
 	while(sizeToWrite > 0)
 	{
-		const int segmentToWrite = min(sizeToWrite, GetBufferWritableSegmentSize(&buffer->state));
+		const int segmentToWrite = MIN(sizeToWrite, GetBufferWritableSegmentSize(&buffer->state));
 
 		if(segmentToWrite <= 0)
 		{
@@ -1337,7 +1344,7 @@ int ReadBuffer(Buffer* buffer, uint8_t* dstData, int dstSize)
 
 	while (sizeToRead > 0)
 	{
-		const int segmentToRead = min(sizeToRead, GetBufferReadableSegmentSize(&buffer->state));
+		const int segmentToRead = MIN(sizeToRead, GetBufferReadableSegmentSize(&buffer->state));
 
 		if (segmentToRead <= 0)
 		{
