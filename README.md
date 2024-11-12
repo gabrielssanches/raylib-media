@@ -12,11 +12,22 @@ It enables easy integration of multimedia content into raylib applications, prov
   <img src="res/raylib_example_01.gif" alt="raylib-example">
 </p>
 
+## Table of Contents
+
+- [Core Features](#core-features)
+- [Minimal Usage](#minimal-usage)
+- [Code Examples](#code-examples)
+- [Dependencies](#dependencies)
+- [About FFmpeg](#about-ffmpeg)
+- [License](#license)
+- [Credits](#credits)
+
 ## Core Features
 
+- Portable code: successfully tested on **Windows**, **Linux**, **MacOS**.
 - Simple yet effective, with customizable options
 - Direct access to video `Texture` and `AudioStream` for efficient media handling
-- Optimized memory usage: no direct allocations outside the `LoadMedia` function
+- Optimized memory usage: no direct allocations are made outside the `LoadMedia` function.
 - Synchronized audio and video playback
 - Supports media seeking and looping
 - Compatible with formats supported by the codecs in the linked FFmpeg build
@@ -41,6 +52,7 @@ while (...) { // Begin your main loop
 UnloadMedia(&media); // Unload media when done
 ```
 ---
+
 ## Code Examples
 
 **[`1) example_01_basics.c`](https://github.com/cloudofoz/raylib-media/blob/main/examples/media/example_01_basics.c)**  
@@ -67,7 +79,9 @@ UnloadMedia(&media); // Unload media when done
 
 ## Dependencies
 
-`raylib-media` depends on the following files and libraries (a build system is not yet available):
+`raylib-media` depends on the following files and libraries (*a build system is not yet available, contributions are welcomed!*):
+> *E.g. with GCC*: `gcc ... rmedia.c -lraylib -lavcodec -lavformat -lavutil -lswresample -lswscale`
+
 
 1. **`src/raymedia.h`** and **`src/rmedia.c`**
 
@@ -85,11 +99,11 @@ UnloadMedia(&media); // Unload media when done
    - **`libswresample`**
    - **`libswscale`**
 
-   You may want to start by using precompiled libraries and later compile your own version, stripping out the codecs you don't use to reduce the library size and tailor it to your needs:
+   You may want to start by using precompiled libraries and later compile your own version, if needed:
 
-   - **Linux** [*Need testing*]: Install via your package manager (e.g., `sudo apt-get install libavcodec-dev libavformat-dev libavutil-dev libswresample-dev libswscale-dev`).
+   - **Linux**: Install via your package manager (e.g., `sudo apt install libraylib-dev libavcodec-dev libavformat-dev libavutil-dev libswresample-dev libswscale-dev`).
      
-   - **macOS** [*Need testing*]:
+   - **macOS**:
      Use Homebrew (`brew install ffmpeg`).
      
    - **Windows**:
@@ -113,16 +127,17 @@ FFmpeg is available in two versions:
 
 
 ---
+
+## License
+
+This project is licensed under the **Zlib** License - see the [LICENSE](LICENSE.md) file for details.
+
+---
   
 ## Credits
 
 Special thanks to the following resources:
 
 - [FFmpeg Libav Tutorial](https://github.com/leandromoreira/ffmpeg-libav-tutorial) - This resource was invaluable in helping me start to dive into FFmpeg and Libav.
-- [FFmpeg Builds by BtbN](https://github.com/BtbN/FFmpeg-Builds) - For providing compiled dependencies that are easy and straightforward to use, perfect for immediately starting to use **raylib-media**.
-
-
-<br>
-
-### *Documentation, instructions, and examples will follow (WIP)*
-
+- [FFmpeg Builds by BtbN](https://github.com/BtbN/FFmpeg-Builds) - For providing compiled dependencies that are easy and straightforward to use, perfect for immediately starting to use **raylib-media** in a "portable" way.
+- [Blender Open Movie projects](https://studio.blender.org/films/) - These movies are not just very cool, but they have been a precious resource for testing my code.
