@@ -101,7 +101,7 @@ UnloadMedia(&media); // Unload media when done
 
    You may want to start by using precompiled libraries and later compile your own version, if needed:
 
-   - **Linux**: Install via your package manager (e.g., `sudo apt install libraylib-dev libavcodec-dev libavformat-dev libavutil-dev libswresample-dev libswscale-dev`).
+   - **Linux**: Install via your package manager (e.g., `sudo apt install libavcodec-dev libavformat-dev libavutil-dev libswresample-dev libswscale-dev`).
      
    - **macOS**:
      Use Homebrew (`brew install ffmpeg`).
