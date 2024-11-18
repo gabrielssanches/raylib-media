@@ -543,7 +543,7 @@ bool PlayerLoad(void)
 {
     Player.media = LoadMedia(MOVIE_FILE);
 
-    if (!IsMediaReady(Player.media))
+    if (!IsMediaValid(Player.media))
     {
         TraceLog(LOG_ERROR, "LoadMedia(): Failed loading '%s'", MOVIE_FILE);
         return false;

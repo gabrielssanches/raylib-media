@@ -1,4 +1,4 @@
-![Version](https://img.shields.io/badge/raylib--media-v0.1beta-informational) ![Version](https://img.shields.io/badge/raylib-v5.0-informational) ![License](https://img.shields.io/github/license/cloudofoz/raylib-media)
+![Version](https://img.shields.io/badge/raylib--media-v0.2beta-informational) ![Version](https://img.shields.io/badge/raylib-v5.5-informational) ![License](https://img.shields.io/github/license/cloudofoz/raylib-media)
 
 > **Note**: This library is in **beta**. Your feedback and support in enhancing its quality are greatly appreciated!
 

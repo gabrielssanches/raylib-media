@@ -46,7 +46,7 @@ int main(int argc, char** argv)
     MediaStream videoMedia = LoadMedia(MovieFile);
 
     // Verify if the media has loaded correctly 
-    if (!IsMediaReady(videoMedia))
+    if (!IsMediaValid(videoMedia))
     {
         TraceLog(LOG_ERROR, "Failed to load media file: %s", MovieFile);
         CloseAudioDevice();

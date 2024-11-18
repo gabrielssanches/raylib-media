@@ -288,7 +288,7 @@ bool LoadEnvironment(void)
 	for (int i = 0; i < VIDEO_CLIPS_COUNT; ++i)
 	{
 		Scene.medias[i] = LoadMediaEx(TextFormat("resources/clips/%s", VIDEO_CLIPS[i]), MEDIA_FLAG_LOOP);
-		if (!IsMediaReady(Scene.medias[i]))
+		if (!IsMediaValid(Scene.medias[i]))
 		{
 			TraceLog(LOG_ERROR, "Failed to load media stream %s.", VIDEO_CLIPS[i]);
 			return false;
@@ -355,7 +355,7 @@ void UnloadEnvironment(void)
 	// Unload media streams
 	for (int i = 0; i < VIDEO_CLIPS_COUNT; ++i)
 	{
-		if (IsMediaReady(Scene.medias[i]))
+		if (IsMediaValid(Scene.medias[i]))
 		{
 			UnloadMedia(&Scene.medias[i]);
 		}

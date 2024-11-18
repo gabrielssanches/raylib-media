@@ -448,7 +448,7 @@ MediaProperties GetMediaProperties(MediaStream media)
 {
 	MediaProperties props = (MediaProperties){ 0 };
 
-	if(IsMediaReady(media))
+	if(IsMediaValid(media))
 	{
 		const AVFormatContext* fmtCtx = media.ctx->formatContext;
 		assert(fmtCtx);
@@ -476,7 +476,7 @@ MediaProperties GetMediaProperties(MediaStream media)
 
 bool SetMediaPosition(MediaStream media, double timeSec)
 {
-	if(!IsMediaReady(media))
+	if(!IsMediaValid(media))
 	{
 		TraceLog(LOG_WARNING, "MEDIA: Trying to set the position of an invalid media.");
 		return false;
@@ -491,7 +491,7 @@ double GetMediaPosition(MediaStream media)
 {
 	double pos = -1.0;
 
-	if (IsMediaReady(media))
+	if (IsMediaValid(media))
 	{
 		pos = media.ctx->timePos;
 	}
@@ -507,7 +507,7 @@ bool SetMediaLooping(MediaStream media, bool loopPlay)
 {
 	int ret = false;
 
-	if (IsMediaReady(media))
+	if (IsMediaValid(media))
 	{
 		media.ctx->loopPlay = loopPlay;
 		ret = true;
@@ -939,7 +939,7 @@ MediaStream LoadMediaEx(const char* fileName, int flags)
 	return ret;
 }
 
-bool IsMediaReady(MediaStream media)
+bool IsMediaValid(MediaStream media)
 {
 	return media.ctx != NULL && media.ctx->state != MEDIA_STATE_INVALID;
 }

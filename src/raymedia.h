@@ -155,7 +155,7 @@ extern "C" {
      * @param media MediaStream structure
      * @return true if media is valid; false otherwise
      */
-    RLAPI bool IsMediaReady(MediaStream media);
+    RLAPI bool IsMediaValid(MediaStream media);
 
     /**
      * Retrieve properties of the loaded media.
