@@ -49,6 +49,17 @@
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 #endif
 
+#if defined(RAYLIB_VERSION_MAJOR) && defined(RAYLIB_VERSION_MINOR)
+// Compatibility check for Raylib versions older than 5.5
+#if (RAYLIB_VERSION_MAJOR < 5) || (RAYLIB_VERSION_MAJOR == 5 && RAYLIB_VERSION_MINOR < 5)
+	#define IsImageValid IsImageReady
+	#define IsTextureValid IsTextureReady
+	#define IsAudioStreamValid IsAudioStreamReady
+#endif
+#else
+	#error "RAYLIB_VERSION_MAJOR and RAYLIB_VERSION_MINOR must be defined"
+#endif
+
 //---------------------------------------------------------------------------------------------------
 // Enumerators Definition
 //---------------------------------------------------------------------------------------------------
@@ -815,7 +826,7 @@ void UnloadMediaContext(MediaContext* ctx)
 		ctx->swsContext = NULL;
 	}
 
-	if (IsImageReady(ctx->videoOutputImage))
+	if (IsImageValid(ctx->videoOutputImage))
 	{
 		UnloadImage(ctx->videoOutputImage);
 		ctx->videoOutputImage = (Image){ 0 };
@@ -878,7 +889,7 @@ MediaStream LoadMediaEx(const char* fileName, int flags)
 	{
 		ret.videoTexture = LoadTextureFromImage(ret.ctx->videoOutputImage);
 
-		if (IsTextureReady(ret.videoTexture))
+		if (IsTextureValid(ret.videoTexture))
 		{
 			SetTextureFilter(ret.videoTexture, TEXTURE_FILTER_BILINEAR);
 		}
@@ -901,7 +912,7 @@ MediaStream LoadMediaEx(const char* fileName, int flags)
 		// Revert to default buffer size
 		SetAudioStreamBufferSizeDefault(0);
 
-		if (!IsAudioStreamReady(ret.audioStream))
+		if (!IsAudioStreamValid(ret.audioStream))
 		{
 			isLoaded = false;
 		}
@@ -937,13 +948,13 @@ void UnloadMedia(MediaStream* media)
 {
 	assert(media);
 
-	if (IsAudioStreamReady(media->audioStream))
+	if (IsAudioStreamValid(media->audioStream))
 	{
 		UnloadAudioStream(media->audioStream);
 		media->audioStream = (AudioStream){ 0 };
 	}
 
-	if(IsTextureReady(media->videoTexture))
+	if(IsTextureValid(media->videoTexture))
 	{
 		UnloadTexture(media->videoTexture);
 		media->videoTexture = (Texture2D){ 0 };
@@ -984,7 +995,7 @@ int SetMediaState(MediaStream media, int newState)
 		if (curState == MEDIA_STATE_STOPPED) 
 		{
 			UpdateState(&media, MEDIA_STATE_PLAYING);
-			if(IsAudioStreamReady(media.audioStream))
+			if(IsAudioStreamValid(media.audioStream))
 			{
 				PlayAudioStream(media.audioStream);
 			}
@@ -992,7 +1003,7 @@ int SetMediaState(MediaStream media, int newState)
 		else if (curState == MEDIA_STATE_PAUSED) 
 		{
 			UpdateState(&media, MEDIA_STATE_PLAYING);
-			if (IsAudioStreamReady(media.audioStream)) 
+			if (IsAudioStreamValid(media.audioStream)) 
 			{
 				ResumeAudioStream(media.audioStream);
 			}
@@ -1004,7 +1015,7 @@ int SetMediaState(MediaStream media, int newState)
 		if (curState == MEDIA_STATE_PLAYING) 
 		{
 			UpdateState(&media, MEDIA_STATE_PAUSED);
-			if (IsAudioStreamReady(media.audioStream)) 
+			if (IsAudioStreamValid(media.audioStream)) 
 			{
 				PauseAudioStream(media.audioStream);
 			}
@@ -1756,7 +1767,7 @@ bool AVSeek(MediaStream* media, int64_t targetTimestamp)
 		return false;
 	}
 
-	if (IsAudioStreamReady(media->audioStream))
+	if (IsAudioStreamValid(media->audioStream))
 	{
 		StopAudioStream(media->audioStream);
 

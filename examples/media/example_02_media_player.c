@@ -34,12 +34,26 @@
 #include "raymedia.h"
 
 //--------------------------------------------------------------------------------------------------
+// Macros
+//--------------------------------------------------------------------------------------------------
+
+#if defined(RAYLIB_VERSION_MAJOR) && defined(RAYLIB_VERSION_MINOR)
+// Compatibility check for Raylib versions older than 5.5
+#if (RAYLIB_VERSION_MAJOR < 5) || (RAYLIB_VERSION_MAJOR == 5 && RAYLIB_VERSION_MINOR < 5)
+#define IsTextureValid IsTextureReady
+#define IsShaderValid IsShaderReady
+#endif
+#else
+#error "RAYLIB_VERSION_MAJOR and RAYLIB_VERSION_MINOR must be defined"
+#endif
+
+//--------------------------------------------------------------------------------------------------
 
 // Constants
 const char* EXAMPLE_TITLE = "Example 02 - A Simple Media Player";
 const int   SCREEN_WIDTH = 1280;
 const int   SCREEN_HEIGHT = 720;
-const char* MOVIE_FILE = "resources/videos/sintel.mp4"; // Adjust path to your movie file (e.g., "path/to/your_file.mp4")
+const char* MOVIE_FILE = "resources/videos/trailer.mp4"; // Adjust path to your movie file (e.g., "path/to/your_file.mp4")
 
 // UI Metrics
 const float BUTTON_SIZE = 40.0f;
@@ -299,7 +313,7 @@ bool LoadVideoEffects(void)
 {
     ShaderData* sd = &Player.videoEffects;
     sd->shader = LoadShader(NULL, "resources/shaders/example_02.frag");
-    if (IsShaderReady(sd->shader))
+    if (IsShaderValid(sd->shader))
     {
         sd->greyscaleLoc = GetShaderLocation(sd->shader, "greyscale");
         sd->pixelateLoc = GetShaderLocation(sd->shader, "pixelate");
@@ -313,7 +327,7 @@ bool LoadVideoEffects(void)
 void UnloadVideoEffects(void)
 {
     ShaderData* sd = &Player.videoEffects;
-    if (IsShaderReady(sd->shader))
+    if (IsShaderValid(sd->shader))
     {
         UnloadShader(sd->shader);
     }
@@ -322,7 +336,7 @@ void UnloadVideoEffects(void)
 Texture2D LoadIcon(const char* iconName)
 {
     Texture2D texture = LoadTexture(TextFormat("resources/icons/icon_%s.png", iconName));
-    if (IsTextureReady(texture))
+    if (IsTextureValid(texture))
     {
         SetTextureFilter(texture, TEXTURE_FILTER_BILINEAR);
     }
@@ -351,7 +365,7 @@ bool LoadIcons(void)
 
     for (int i = 0; i < ICON_COUNT; ++i)
     {
-        if (!IsTextureReady(icons[i]))
+        if (!IsTextureValid(icons[i]))
         {
             TraceLog(LOG_ERROR, "LoadIcons(): Failed loading icon #%i", i);
             return false;
@@ -365,7 +379,7 @@ void UnloadIcons(void)
     Texture2D* icons = Player.gui.icons;
     for (int i = 0; i < ICON_COUNT; ++i)
     {
-        if (IsTextureReady(icons[i]))
+        if (IsTextureValid(icons[i]))
         {
             UnloadTexture(icons[i]);
         }

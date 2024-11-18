@@ -34,6 +34,16 @@
 // Macros
 //--------------------------------------------------------------------------------------------------
 
+#if defined(RAYLIB_VERSION_MAJOR) && defined(RAYLIB_VERSION_MINOR)
+// Compatibility check for Raylib versions older than 5.5
+#if (RAYLIB_VERSION_MAJOR < 5) || (RAYLIB_VERSION_MAJOR == 5 && RAYLIB_VERSION_MINOR < 5)
+	#define IsTextureValid IsTextureReady
+	#define IsModelValid IsModelReady
+#endif
+#else
+	#error "RAYLIB_VERSION_MAJOR and RAYLIB_VERSION_MINOR must be defined"
+#endif
+
 #define VIDEO_CLIPS_COUNT (int)(sizeof(VIDEO_CLIPS) / sizeof(VIDEO_CLIPS[0]))
 
 //--------------------------------------------------------------------------------------------------
@@ -249,7 +259,7 @@ bool LoadEnvironment(void)
 {
 	// Load environment texture
 	Texture envTexture = LoadTexture("resources/textures/tv_shop_env_texture_rgba.png");
-	if (!IsTextureReady(envTexture))
+	if (!IsTextureValid(envTexture))
 	{
 		TraceLog(LOG_ERROR, "Failed to load environment texture.");
 		return false;
@@ -266,7 +276,7 @@ bool LoadEnvironment(void)
 	for (int i = 0; i < ENV_MODEL_COUNT - 1; ++i)
 	{
 		// Exclude ENV_MODEL_SCREENS
-		if (!IsModelReady(Scene.envModel[i]))
+		if (!IsModelValid(Scene.envModel[i]))
 		{
 			TraceLog(LOG_ERROR, "Failed to load environment model %d.", i);
 			return false;
@@ -287,7 +297,7 @@ bool LoadEnvironment(void)
 
 	// Setup screen models with media textures
 	Model* screensModel = &Scene.envModel[ENV_MODEL_SCREENS];
-	if (!IsModelReady(*screensModel))
+	if (!IsModelValid(*screensModel))
 	{
 		TraceLog(LOG_ERROR, "Failed to load screens model.");
 		return false;
@@ -328,7 +338,7 @@ void UnloadEnvironment(void)
 	// Unload environment texture
 	Texture envTexture = Scene.envModel[ENV_MODEL_BACKGROUND].materials[0].maps[MATERIAL_MAP_ALBEDO].texture;
 
-	if (IsTextureReady(envTexture))
+	if (IsTextureValid(envTexture))
 	{
 		UnloadTexture(envTexture);
 	}
@@ -336,7 +346,7 @@ void UnloadEnvironment(void)
 	// Unload models
 	for (int i = 0; i < ENV_MODEL_COUNT; ++i)
 	{
-		if (IsModelReady(Scene.envModel[i]))
+		if (IsModelValid(Scene.envModel[i]))
 		{
 			UnloadModel(Scene.envModel[i]);
 		}
