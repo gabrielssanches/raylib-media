@@ -30,6 +30,7 @@ It enables easy integration of multimedia content into raylib applications, prov
 - Optimized memory usage: no direct allocations are made outside the `LoadMedia` function.
 - Synchronized audio and video playback
 - Supports media seeking and looping
+- Supports loading media from custom streams, enabling flexible input sources like archives, online streams, or encrypted resource packs
 - Compatible with formats supported by the codecs in the linked FFmpeg build
 
 ## Minimal Usage
@@ -74,6 +75,13 @@ UnloadMedia(&media); // Unload media when done
     <img src="res/rmedia_example_03.jpg" alt="rmedia_example_03.jpg" width="380" height="222">
     <img src="res/rmedia_example_03.gif" alt="rmedia_example_03.gif" width="380" height="222">
    </p>
+
+**[`4) example_04_custom_stream.c`](https://github.com/cloudofoz/raylib-media/blob/main/examples/media/example_04_custom_stream.c)**  
+> *Description:* Demonstrates how to use `LoadMediaFromStream` with custom callbacks for reading media.  
+> This example simulates a custom stream using a memory buffer, showcasing the flexibility of the API. Real-world use cases include:
+> - Reading from compressed archives  
+> - Streaming over a network  
+> - Accessing custom data formats or encrypted resources  
 
 ---
 
