@@ -137,6 +137,8 @@ typedef struct Buffer
 // - Changes to these settings will take effect only on MediaStreams loaded after the change.
 typedef struct MediaConfig
 {
+	int ioBufferSize;                       // Size of the buffer for custom IO operations (in bytes)
+
 	int videoQueueSize;						// Maximum number of pending video packets
 	int audioQueueSize;						// Maximum number of pending audio packets
 	int audioDecodedBufferSize;				// Size in bytes of the buffer holding decoded audio for the AudioStream
@@ -192,6 +194,7 @@ typedef struct MediaContext
 
 // Default global settings in raylib style (see documentation for MediaConfig, SetMediaFlag(), and GetMediaFlag()).
 static MediaConfig MEDIA = {
+	.ioBufferSize   = 4 * 1024,
 	.videoQueueSize = 50,
 	.audioQueueSize = 50,
 	.audioDecodedBufferSize = 16 * 1024, // TODO: Fine-tune these values.
@@ -312,7 +315,12 @@ void AVUnloadCodecContext(StreamDataContext* streamCtx);
 // Functions Declaration - Media Context loading and unloading
 //---------------------------------------------------------------------------------------------------
 
-MediaContext* LoadMediaContext(const char* fileName, int flags);
+// Load a MediaContext from a file or a custom MediaStreamReader.
+// - fileName: Name of the media file to load. Ignored if a valid MediaStreamReader is provided.
+// - streamReader: A MediaStreamReader containing custom IO callbacks. Takes precedence over fileName if valid.
+// - flags: Combination of MediaLoadFlag values to configure loading behavior.
+// Returns: Pointer to the allocated MediaContext on success, or NULL on failure.
+MediaContext* LoadMediaContext(const char* fileName, MediaStreamReader streamReader, int flags);
 
 void UnloadMediaContext(MediaContext* ctx);
 
@@ -320,6 +328,14 @@ void UnloadMediaContext(MediaContext* ctx);
 //---------------------------------------------------------------------------------------------------
 // Functions Declaration - Helpers
 //---------------------------------------------------------------------------------------------------
+
+// Loads a MediaStream from an already initialized MediaContext.
+// This internal function is shared by exposed API functions (LoadMedia, LoadMediaEx, LoadMediaFromStream),
+// which differ only in how the MediaContext is initialized.
+// - ctx: Pointer to an initialized MediaContext structure.
+// - flags: Combination of MediaLoadFlag values to configure the loading process.
+// Returns: A valid MediaStream on success; an empty MediaStream on failure.
+MediaStream LoadMediaFromContext(MediaContext* ctx, int flags);
 
 void NotifyEndOfStream(const MediaStream* media);         // Handles the end-of-stream event for the specified media.
 
@@ -338,6 +354,10 @@ int SetMediaFlag(int flag, int value)
 
 	switch (flag)
 	{
+	case MEDIA_IO_BUFFER:
+		MEDIA.ioBufferSize = MAX(value, 1);
+		break;
+
 	case MEDIA_VIDEO_QUEUE:
 		MEDIA.videoQueueSize = MAX(value, 1);
 		break;
@@ -396,6 +416,10 @@ int GetMediaFlag(int flag)
 
 	switch (flag)
 	{
+	case MEDIA_IO_BUFFER:
+		ret = MEDIA.ioBufferSize;
+		break;
+
 	case MEDIA_VIDEO_QUEUE:
 		ret = MEDIA.videoQueueSize;
 		break;
@@ -439,8 +463,7 @@ int GetMediaFlag(int flag)
 	return ret;
 }
 
-
-//---------------------------------------------------------------------------------------------------
+ //---------------------------------------------------------------------------------------------------
 // Functions Definition - Media properties handling
 //---------------------------------------------------------------------------------------------------
 
@@ -525,7 +548,7 @@ bool SetMediaLooping(MediaStream media, bool loopPlay)
 // Functions Definition - Media Context loading and unloading
 //---------------------------------------------------------------------------------------------------
 
-MediaContext* LoadMediaContext(const char* fileName, int flags)
+MediaContext* LoadMediaContext(const char* fileName, MediaStreamReader streamReader, int flags)
 {
 	MediaContext* ctx = (MediaContext*) RL_MALLOC(sizeof(MediaContext));
 
@@ -540,6 +563,44 @@ MediaContext* LoadMediaContext(const char* fileName, int flags)
 		TraceLog(LOG_ERROR, "MEDIA: Can't allocate AVFormatContext");
 		UnloadMediaContext(ctx);
 		return NULL;
+	}
+
+	// If a custom read function is provided, set up the AVIOContext for custom IO
+	if (streamReader.readFn)
+	{
+		// Allocate buffer for AVIOContext
+		unsigned char* ioBuffer = av_malloc(MEDIA.ioBufferSize);
+		if (!ioBuffer)
+		{
+			TraceLog(LOG_ERROR, "MEDIA: Can't allocate AVIOContext buffer");
+			UnloadMediaContext(ctx); // Free resources and exit on error
+			return NULL;
+		}
+
+		// Allocate and initialize the AVIOContext for custom IO
+		AVIOContext* avIOContext = avio_alloc_context(
+			ioBuffer,                        // Buffer for IO operations
+			MEDIA.ioBufferSize,              // Size of the buffer in bytes
+			0,                               // Write flag (0 for read-only operations)
+			streamReader.userData,           // Opaque pointer to custom stream context
+			streamReader.readFn,             // Custom read function
+			NULL,                            // Custom write function (NULL for read-only)
+			streamReader.seekFn              // Custom seek function (NULL if not supported)
+		);
+
+		if (!avIOContext)
+		{
+			TraceLog(LOG_ERROR, "MEDIA: Can't allocate AVIOContext");
+			av_freep(&ioBuffer);         // Free the allocated buffer on failure
+			UnloadMediaContext(ctx);        // Free resources and exit on error
+			return NULL;
+		}
+
+		// Assign the custom AVIOContext to the format context
+		ctx->formatContext->pb = avIOContext;
+
+		// Set the custom IO flag for the format context
+		ctx->formatContext->flags |= AVFMT_FLAG_CUSTOM_IO;
 	}
 
 	int ret = avformat_open_input(&ctx->formatContext, fileName, NULL, NULL);
@@ -844,6 +905,13 @@ void UnloadMediaContext(MediaContext* ctx)
 
 	if(ctx->formatContext)
 	{
+		//AVIOContext
+	    if (ctx->formatContext->pb)
+	    {
+		    av_freep(&ctx->formatContext->pb->buffer);
+		    avio_context_free(&ctx->formatContext->pb);
+	    }
+
 		avformat_close_input(&ctx->formatContext);
 	}
 
@@ -865,22 +933,15 @@ void UnloadMediaContext(MediaContext* ctx)
 // Functions Definition - MediaStream loading and unloading 
 //---------------------------------------------------------------------------------------------------
 
-
-MediaStream LoadMedia(const char* fileName)
+MediaStream LoadMediaFromContext(MediaContext *ctx, int flags)
 {
-	return LoadMediaEx(fileName, MEDIA_LOAD_AV);
-}
-
-MediaStream LoadMediaEx(const char* fileName, int flags)
-{
-
 	MediaStream ret = (MediaStream){ 0 };
 
-	ret.ctx = LoadMediaContext(fileName, flags);
+	ret.ctx = ctx;
 
 	bool isLoaded = true;
 
-	if(!ret.ctx)
+	if (!ret.ctx)
 	{
 		isLoaded = false;
 	}
@@ -904,7 +965,7 @@ MediaStream LoadMediaEx(const char* fileName, int flags)
 		const int sampleRate = ret.ctx->streams[STREAM_AUDIO].codecCtx->sample_rate;
 		const int sampleSize = 8 * av_get_bytes_per_sample(MEDIA.audioOutputFmt);
 		const int channels = MEDIA.audioOutputChannels;
-		
+
 		SetAudioStreamBufferSizeDefault(MEDIA.audioStreamBufferSize);
 
 		ret.audioStream = LoadAudioStream(sampleRate, sampleSize, channels);
@@ -929,9 +990,9 @@ MediaStream LoadMediaEx(const char* fileName, int flags)
 			SetMediaState(ret, MEDIA_STATE_PLAYING);
 		}
 	}
-	else 
+	else
 	{
-		TraceLog(LOG_ERROR, "MEDIA: Failed to load the media for '%s'.", fileName);
+		TraceLog(LOG_ERROR, "MEDIA: Failed to load the media");
 		UnloadMedia(&ret);
 		ret = (MediaStream){ 0 };
 	}
@@ -939,7 +1000,30 @@ MediaStream LoadMediaEx(const char* fileName, int flags)
 	return ret;
 }
 
-bool IsMediaValid(MediaStream media)
+ MediaStream LoadMedia(const char* fileName)
+ {
+	 return LoadMediaEx(fileName, MEDIA_LOAD_AV);
+ }
+
+ MediaStream LoadMediaEx(const char* fileName, int flags)
+ {
+	 MediaContext* ctx = LoadMediaContext(fileName, (MediaStreamReader) { 0 }, flags);
+	 return LoadMediaFromContext(ctx, flags);
+ }
+
+ MediaStream LoadMediaFromStream(MediaStreamReader streamReader, int flags)
+ {
+	 if (!streamReader.readFn)
+	 {
+		 TraceLog(LOG_ERROR, "MEDIA: A valid read function is required to load media from a stream");
+		 return (MediaStream) { 0 }; 
+	 }
+
+	 MediaContext* ctx = LoadMediaContext(NULL, streamReader, flags); 
+	 return LoadMediaFromContext(ctx, flags); 
+ }
+
+ bool IsMediaValid(MediaStream media)
 {
 	return media.ctx != NULL && media.ctx->state != MEDIA_STATE_INVALID;
 }
@@ -955,13 +1039,13 @@ void UnloadMedia(MediaStream* media)
 	}
 
 	if(IsTextureValid(media->videoTexture))
-	{
+{
 		UnloadTexture(media->videoTexture);
 		media->videoTexture = (Texture2D){ 0 };
-	}	
+}
 
 	if(media->ctx)
-	{
+{
 		UnloadMediaContext(media->ctx);
 		media->ctx = NULL;
 	}
