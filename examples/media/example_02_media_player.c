@@ -53,7 +53,7 @@
 const char* EXAMPLE_TITLE = "Example 02 - A Simple Media Player";
 const int   SCREEN_WIDTH = 1280;
 const int   SCREEN_HEIGHT = 720;
-const char* MOVIE_FILE = "resources/videos/trailer.mp4"; // Adjust path to your movie file (e.g., "path/to/your_file.mp4")
+const char* MOVIE_FILE = "resources/clips/002.mp4"; // Adjust path to your movie file (e.g., "path/to/your_file.mp4")
 
 // UI Metrics
 const float BUTTON_SIZE = 40.0f;
